@@ -3,17 +3,17 @@
 def dependency_tree(sent):
     result = []
     root = next((w for w in sent.words if w.head == 0), None)
-    stack = [(0, root.id)]  # Start with the root word
+    stack = [(0, root.id, 0)]  # Start with the root word
     while stack:
-        parent_id, child_id = stack.pop()
+        parent_id, child_id, indent_level = stack.pop()
         word = sent.words[child_id - 1]
-        indent = "  " * (parent_id - 1)
+        indent = "  " * indent_level
         rel = word.deprel
         rel = "↳" if 'root' == rel else f"└{rel.ljust(8, '—')}→"
         result.append(f"{indent}{rel} {word.text} {word.upos} {word.xpos} {word.feats}")
         for other_word in sent.words:
             if other_word.head == child_id:
-                stack.append((child_id, other_word.id))
+                stack.append((child_id, other_word.id, indent_level + 1))
     return '\n'.join(result)
 
 
