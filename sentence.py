@@ -52,10 +52,10 @@ def _is_sentence(doc):
 # P R O C E S S I N G   F U N C T I O N   F R O M   T E X T
 # returns none if sentence else doc
 
-def _deps(doc):
+def _deps(doc, color=False):
     # return doc.sentences[0].dependencies
-    #return prettyprint.dependencies(doc.sentences[0])
-    return prettyprint.dependency_tree(doc.sentences[0])
+    # return prettyprint.dependencies(doc.sentences[0])
+    return prettyprint.dependency_tree(doc.sentences[0], color=color)
 
 
 def is_sentence(input_text, nlp):
@@ -103,13 +103,13 @@ def main():
         "obvious though this is ",
         "do you smoke",
     ]
-    for input_text in examples1 + examples2:
+    for input_text in examples1:  # + examples2:
         doc = nlp(input_text)
         sentence_result = _is_sentence(doc)
 
         print(f"Text: {input_text}")
         print(f"Sentence: {sentence_result}")
-        print(f"Deps:\n{_deps(doc)}")
+        print(f"Deps:\n{_deps(doc, color=True)}")
         print("\n")
 
 
