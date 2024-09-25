@@ -10,7 +10,9 @@ synsetid_col = 0
 nid_col = 1
 selector_col = 2
 text_col = 5
+text0_col = 6
 result_col = 9
+result2_col = 10
 
 
 def ensure_row(sheet, row_index):
@@ -31,6 +33,8 @@ def default_process(row):
 
 def process(row):
     id = row[nid_col].value
+    if not id:
+        return
     selector = row[selector_col].value
     tagged_sentence = selector is not None and selector in ('S', 'I')
     tagged_phrase = selector is not None and selector in ('P', 'N', 'V', 'A', 'D')
@@ -40,10 +44,14 @@ def process(row):
         raise Exception(id)
     input_text = row[text_col].value
     is_sentence, deps = sentence_stanza.parse_sentence(input_text)
+    deps = str(deps)  # .replace('\n','')
     if (tagged_sentence and not is_sentence) or (tagged_phrase and is_sentence):
-        v = str(deps)  # .replace('\n','')
-        row[result_col].set_value(v)
+        row[result_col].set_value('!S' if is_sentence else '!P')
+        row[result2_col].set_value(deps)
         return row
+    else:
+        row[result_col].set_value('s' if is_sentence else 'p')
+        row[result2_col].set_value(deps)
 
 
 def process_sentence(row):
@@ -52,8 +60,8 @@ def process_sentence(row):
         input_text = row[text_col].value
         is_sentence, deps = sentence_stanza.parse_sentence(input_text)
         if not is_sentence:
-            v = str(deps)  # .replace('\n','')
-            row[result_col].set_value(v)
+            deps = str(deps)  # .replace('\n','')
+            row[result_col].set_value(deps)
             return row
 
 
@@ -63,8 +71,8 @@ def process_not_sentence(row):
         input_text = row[text_col].value
         is_sentence, deps = sentence_stanza.parse_sentence(input_text)
         if is_sentence:
-            v = str(deps)  # .replace('\n','')
-            row[result_col].set_value(v)
+            deps = str(deps)  # .replace('\n','')
+            row[result_col].set_value(deps)
             return row
 
 
@@ -74,14 +82,14 @@ def read_row(sheet):
 
 
 def get_processing(name):
-    return globals()[name] if name else process_sentence
+    return globals()[name] if name else process
 
 
 def run(filepath, processf):
     file_abspath = os.path.abspath(filepath)
     doc = ezodf.opendoc(file_abspath)
     sheet = doc.sheets[0]
-    ensure_col(sheet, result_col)  # for result
+    ensure_col(sheet, result2_col)  # for result
 
     count = 0
     for row in read_row(sheet):

@@ -19,7 +19,7 @@ def dependency_tree(sent, color=False):
         word = sent.words[child_id - 1]
         indent = '  ' * indent_level
         rel = word.deprel
-        rel = '↳' if 'root' == rel else f"└{rel.ljust(16 - indent_level * 2, '—')}→"
+        rel = '↳' if 'root' == rel else f"└{rel.ljust(16 - indent_level * 2, '—')}"
         p = f"{word.upos} {word.xpos}"
         f = f"{word.feats}".replace('|', ' ')
         result.append(
