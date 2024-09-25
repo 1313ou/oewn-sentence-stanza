@@ -1,3 +1,5 @@
+
+
 R = "\033[31m"
 G = "\033[32m"
 Y = "\033[33m"
@@ -17,7 +19,7 @@ def dependency_tree(sent, color=False):
         word = sent.words[child_id - 1]
         indent = '  ' * indent_level
         rel = word.deprel
-        rel = '↳' if 'root' == rel else f"└{rel.ljust(8, '—')}→"
+        rel = '↳' if 'root' == rel else f"└{rel.ljust(16 - indent_level * 2, '—')}→"
         p = f"{word.upos} {word.xpos}"
         f = f"{word.feats}".replace('|', ' ')
         result.append(
