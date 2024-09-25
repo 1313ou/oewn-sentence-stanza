@@ -38,33 +38,41 @@ def __is_sentence(sentence):
         return False
 
     # root is a verb
+    subjects = find_dep_list(('nsubj', 'nsubj:pass', 'nsubjpass', 'csubj'), root.id, sentence.dependencies)
     if root.upos in {"VERB"}:
-        # let
-        if root.lemma == 'let' and root.id == 1:
-            # let's|us|him|the man V
-            xcomp = find_dep1(('xcomp'), root.id, sentence.dependencies)
-            obj = find_dep1(('obj'), root.id, sentence.dependencies)
-            if xcomp and xcomp.upos == 'VERB' and obj and obj.upos in ('NOUN', 'PRON'):
-                return True
-            ccomp = find_dep1(('ccomp'), root.id, sentence.dependencies)
-            if ccomp:
+
+        if len(subjects) == 0:
+
+            # imperative mood feature
+            if 'Mood=Imp' in root.feats:
                 return True
 
-        # do
-        aux = find_dep1(('aux'), root.id, sentence.dependencies)
-        if aux and aux.lemma == 'do' and aux.id == 1:
+            # let n v
+            if root.lemma == 'let' and root.id == 1:
+                # let's|us|him|the man V
+                xcomp = find_dep1(('xcomp'), root.id, sentence.dependencies)
+                obj = find_dep1(('obj'), root.id, sentence.dependencies)
+                if xcomp and xcomp.upos == 'VERB' and obj and obj.upos in ('NOUN', 'PRON'):
+                    return True
+                ccomp = find_dep1(('ccomp'), root.id, sentence.dependencies)
+                if ccomp:
+                    return True
+
+            # do v
+            aux = find_dep1(('aux'), root.id, sentence.dependencies)
+            if aux and aux.lemma == 'do' and len(subjects) == 0: #and aux.id == 1:
+                return True
+
+            return False
+
+        # subject v
+        else:
             return True
 
-        # Check for nominal or clausal subject linked to the root
-        subjects = find_dep_list(('nsubj', 'nsubj:pass', 'nsubjpass', 'csubj'), root.id, sentence.dependencies)
-        if len(subjects) == 0:
-            return False
-        return True
-
-    # root is a noun
-    elif root.upos in {"NOUN", "PRON", "ADJ"}:
+    # root with copula and subject
+    elif root.upos in {"NOUN", "PRON", "ADJ", "ADV"}:
         copulas = find_dep_list(("cop"), root.id, sentence.dependencies)
-        if len(copulas) == 0:
+        if len(subjects) == 0 or len(copulas) == 0:
             return False
         return True
 
@@ -105,6 +113,10 @@ def main():
                           download_method=DownloadMethod.REUSE_RESOURCES)
     # download_method=None)
     print(nlp.config)
+    examples0 = [
+        "is anybody here",
+        "is anybody happy",
+    ]
     examples1 = [
         "go",
         "don't go",
@@ -134,7 +146,17 @@ def main():
         "a quick brown fox",
         "obvious though this is ",
     ]
-    for input_text in examples1 + examples2 + examples3:
+    examples4 = [
+        "We were so far back in the theater, we could barely read the subtitles.",
+        "We were so far back in the theater we could barely read the subtitles.",
+        "force out the air",
+        "blow on the soup to cool it down",
+        "beat the living hell out of him",
+        "was immensely more important to the project as a scientist than as an administrator",
+        "would have scarce arrived before she would have found some excuse to leave",
+        "would have scarcely arrived before she would have found some excuse to leave",
+    ]
+    for input_text in examples0: # + examples1 + examples2 + examples3 + examples4:
         doc = nlp(input_text)
         sentence_result = _is_sentence(doc)
 

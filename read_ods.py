@@ -46,7 +46,7 @@ def process(row):
     is_sentence, deps = sentence_stanza.parse_sentence(input_text)
     deps = str(deps)  # .replace('\n','')
     if (tagged_sentence and not is_sentence) or (tagged_phrase and is_sentence):
-        row[result_col].set_value('!S' if is_sentence else '!P')
+        row[result_col].set_value('S!' if is_sentence else 'P!')
         row[result2_col].set_value(deps)
         return row
     else:
