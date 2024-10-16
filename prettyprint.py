@@ -27,7 +27,7 @@ def dependency_tree(sent, color=False):
         p = f"{word.upos} {word.xpos}"
         f = f"{word.feats}".replace('|', ' ')
         result.append(
-            f"{indent}{M}{rel}{Z} {B}{word.text:<20}{Z} {Y}{p:<20}{Z} {W}{f}{Z}" if color else f"{indent}{rel} {word.text:<20}/ {p:<16} {f}")
+            f"{indent}{M}{rel}{Z} {B}{word.text:<20}{Z} {Y}{p:<20}{Z} {W}{f}{Z}" if color else f"{indent}{rel} {word.text:<20} {p:<16} {f}")
         for other_word in reversed(sent.words):
             if other_word.head == child_id:
                 stack.append((child_id, other_word.id, indent_level + 1))

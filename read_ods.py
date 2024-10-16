@@ -4,15 +4,17 @@ import os
 from pathlib import Path
 
 import ezodf
+import ods_columns as col
 import sentence_stanza
 
-synsetid_col = 0
-nid_col = 1
-selector_col = 2
-text_col = 5
-text0_col = 6
-result_col = 9
-result2_col = 10
+synsetid_col = col.synsetid_col
+nid_col = col.nid_col
+clazz_col = col.class_col
+text_col = col.text_col
+text0_col = col.text0_col
+result_clazz_col = col.stanza_col
+result_deps_col = col.stanza_deps_col
+result_cdeps_col = col.stanza_cdeps_col
 
 
 def ensure_row(sheet, row_index):
@@ -35,44 +37,44 @@ def process(row):
     id = row[nid_col].value
     if not id:
         return
-    selector = row[selector_col].value
-    tagged_sentence = selector is not None and selector in ('S', 'I')
-    tagged_phrase = selector is not None and selector in ('P', 'N', 'V', 'A', 'D')
+    clazz = row[clazz_col].value
+    tagged_sentence = clazz is not None and clazz in ('S', 'I')
+    tagged_phrase = clazz is not None and clazz in ('P', 'N', 'V', 'A', 'D')
     if not tagged_sentence and not tagged_phrase:
-        raise Exception(id)
+        raise ValueError(id)
     if not (tagged_sentence or tagged_phrase):
-        raise Exception(id)
+        raise ValueError(id)
     input_text = row[text_col].value
-    is_sentence, deps = sentence_stanza.parse_sentence(input_text)
-    deps = str(deps)  # .replace('\n','')
-    if (tagged_sentence and not is_sentence) or (tagged_phrase and is_sentence):
-        row[result_col].set_value('S!' if is_sentence else 'P!')
-        row[result2_col].set_value(deps)
-        return row
+    is_sentence, deps, cdeps = sentence_stanza.parse_sentence(input_text)
+    diff = (tagged_sentence and not is_sentence) or (tagged_phrase and is_sentence)
+    if diff:
+        row[result_clazz_col].set_value('S!' if is_sentence else 'P!')
     else:
-        row[result_col].set_value('s' if is_sentence else 'p')
-        row[result2_col].set_value(deps)
+        row[result_clazz_col].set_value('s' if is_sentence else 'p')
+    row[result_deps_col].set_value(deps)
+    row[result_cdeps_col].set_value(cdeps)
+    return row if diff else None
 
 
 def process_sentence(row):
-    selector = row[selector_col].value
-    if selector is not None and selector in ('S', 'I'):
+    clazz = row[clazz_col].value
+    if clazz is not None and clazz in ('S', 'I'):
         input_text = row[text_col].value
         is_sentence, deps = sentence_stanza.parse_sentence(input_text)
         if not is_sentence:
             deps = str(deps)  # .replace('\n','')
-            row[result_col].set_value(deps)
+            row[result_clazz_col].set_value(deps)
             return row
 
 
 def process_not_sentence(row):
-    selector = row[selector_col].value
-    if selector is not None and selector in ('P', 'N', 'V', 'A', 'D'):
+    clazz = row[clazz_col].value
+    if clazz is not None and clazz in ('P', 'N', 'V', 'A', 'D'):
         input_text = row[text_col].value
         is_sentence, deps = sentence_stanza.parse_sentence(input_text)
         if is_sentence:
             deps = str(deps)  # .replace('\n','')
-            row[result_col].set_value(deps)
+            row[result_clazz_col].set_value(deps)
             return row
 
 
@@ -89,7 +91,7 @@ def run(filepath, processf):
     file_abspath = os.path.abspath(filepath)
     doc = ezodf.opendoc(file_abspath)
     sheet = doc.sheets[0]
-    ensure_col(sheet, result2_col)  # for result
+    ensure_col(sheet, col.last_col)  # for result
 
     count = 0
     for row in read_row(sheet):
@@ -98,8 +100,8 @@ def run(filepath, processf):
             # print(f"{'\t'.join([str(col.value) for col in new_row])}")
             synsetid = row[synsetid_col].value
             id = row[nid_col].value
-            selector = row[selector_col].value
-            print(f"{synsetid}\t{id}\t{selector}\t{row[text_col].value}\t{new_row[result_col].value.replace('\n', '')}")
+            clazz = row[clazz_col].value
+            print(f"{synsetid}\t{id}\t{clazz}\t{row[text_col].value}\t{new_row[result_clazz_col].value.replace('\n', '')}")
             count += 1
     p = Path(file_abspath)
     saved = f"{p.parent}/{p.stem}_{processf.__name__}{p.suffix}"

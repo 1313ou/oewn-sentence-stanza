@@ -5,6 +5,7 @@ import sentence
 stanza.download('en')
 nlp = stanza.Pipeline('en', processors='tokenize,mwt,pos,lemma, constituency,depparse')
 
+
 def is_sentence(input_text):
     return sentence.is_sentence(input_text, nlp)
 

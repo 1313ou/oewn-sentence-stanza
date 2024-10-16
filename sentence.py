@@ -95,7 +95,8 @@ def _deps(doc, color=False):
 
 
 def _cdeps(doc, color=False):
-     return prettyprint.cdependency_tree(doc.sentences[0])
+    return prettyprint.cdependency_tree(doc.sentences[0])
+
 
 def is_sentence(input_text, nlp):
     doc = nlp(input_text)
@@ -105,7 +106,7 @@ def is_sentence(input_text, nlp):
 def parse_sentence(input_text, nlp):
     doc = nlp(input_text)
     flag = _is_sentence(doc)
-    return flag, _deps(doc)
+    return flag, _deps(doc), _cdeps(doc)
 
 
 # T E S T
@@ -179,7 +180,7 @@ def main():
         print(f"Text: {input_text}")
         print(f"Sentence: {sentence_result}")
         print(f"Deps:\n{_deps(doc, color=True)}")
-        print(f"Constituency:\n{_cdeps(doc, color=True)}")
+        print(f"Constituency:\n{_cdeps(doc)}")
         print("\n")
 
 
