@@ -1,5 +1,3 @@
-
-
 R = "\033[31m"
 G = "\033[32m"
 Y = "\033[33m"
@@ -8,6 +6,11 @@ M = "\033[35m"
 C = "\033[36m"
 W = "\033[37m"
 Z = "\033[0m"
+
+
+def cdependency_tree(sent):
+    t = sent.constituency
+    return t.pretty_print()
 
 
 def dependency_tree(sent, color=False):
@@ -19,11 +22,12 @@ def dependency_tree(sent, color=False):
         word = sent.words[child_id - 1]
         indent = '  ' * indent_level
         rel = word.deprel
-        rel = '↳' if 'root' == rel else f"└{rel.ljust(16 - indent_level * 2, '—')}"
+        is_root = 'root' == rel
+        rel = f'↳{' '.ljust(16)}' if is_root else f"└{rel.ljust(16 - indent_level * 2, '—')}"
         p = f"{word.upos} {word.xpos}"
         f = f"{word.feats}".replace('|', ' ')
         result.append(
-            f"{indent}{M}{rel}{Z} {B}{word.text}{Z} {Y}{p}{Z} {W}{f}{Z}" if color else f"{indent}{rel} {word.text} {p} {f}")
+            f"{indent}{M}{rel}{Z} {B}{word.text:<20}{Z} {Y}{p:<20}{Z} {W}{f}{Z}" if color else f"{indent}{rel} {word.text:<20}/ {p:<16} {f}")
         for other_word in reversed(sent.words):
             if other_word.head == child_id:
                 stack.append((child_id, other_word.id, indent_level + 1))

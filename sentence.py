@@ -1,5 +1,7 @@
 import stanza
 from stanza import DownloadMethod
+from stanza.models.constituency.parse_tree import Tree
+
 import prettyprint
 
 
@@ -60,7 +62,7 @@ def __is_sentence(sentence):
 
             # do v
             aux = find_dep1(('aux'), root.id, sentence.dependencies)
-            if aux and aux.lemma == 'do' and len(subjects) == 0: #and aux.id == 1:
+            if aux and aux.lemma == 'do' and len(subjects) == 0:  # and aux.id == 1:
                 return True
 
             return False
@@ -91,6 +93,9 @@ def _deps(doc, color=False):
     # return prettyprint.dependencies(doc.sentences[0])
     return prettyprint.dependency_tree(doc.sentences[0], color=color)
 
+
+def _cdeps(doc, color=False):
+     return prettyprint.cdependency_tree(doc.sentences[0])
 
 def is_sentence(input_text, nlp):
     doc = nlp(input_text)
@@ -156,13 +161,25 @@ def main():
         "would have scarce arrived before she would have found some excuse to leave",
         "would have scarcely arrived before she would have found some excuse to leave",
     ]
-    for input_text in examples0: # + examples1 + examples2 + examples3 + examples4:
+    examples5 = [
+        "an RBI double that drove in Tony Campana",
+        "it was none other than Marco Scutaro who drove in Ryan Theriot",
+        "I'm enjoying this. I know. This rules!",
+        "It rocks, but it can get a little dense.",
+        "A shot of tequila and then turn up the song, it kicks ass",
+        "To say Ben slays in these photos is an understatement",
+        "Machado drove in the game - winning run in a 3 - 2 win",
+        "Longoria hit 17 home runs and drove in 55 runs",
+        "Brian McCann drove in four runs with four hits",
+    ]
+    for input_text in examples5:  # examples0 + examples1 + examples2 + examples3 + examples4:
         doc = nlp(input_text)
         sentence_result = _is_sentence(doc)
 
         print(f"Text: {input_text}")
         print(f"Sentence: {sentence_result}")
         print(f"Deps:\n{_deps(doc, color=True)}")
+        print(f"Constituency:\n{_cdeps(doc, color=True)}")
         print("\n")
 
 
