@@ -36,16 +36,16 @@ def default_process(row):
 
 
 def process(row):
-    id = row[nid_col].value
-    if not id:
-        return
+    nid = row[nid_col].value
+    if not nid:
+        return None
     clazz = row[clazz_col].value
     tagged_sentence = clazz is not None and clazz in ('S', 'I')
     tagged_phrase = clazz is not None and clazz in ('P', 'N', 'V', 'A', 'D')
     if not tagged_sentence and not tagged_phrase:
-        raise ValueError(id)
+        raise ValueError(nid)
     if not (tagged_sentence or tagged_phrase):
-        raise ValueError(id)
+        raise ValueError(nid)
     input_text = row[text_col].value
     is_sentence, deps, cdeps = sentence.parse_sentence(input_text, model.nlp)
     diff = (tagged_sentence and not is_sentence) or (tagged_phrase and is_sentence)
@@ -67,6 +67,7 @@ def process_sentence(row):
             deps = str(deps)  # .replace('\n','')
             row[result_clazz_col].set_value(deps)
             return row
+    return None
 
 
 def process_not_sentence(row):
@@ -78,11 +79,12 @@ def process_not_sentence(row):
             deps = str(deps)  # .replace('\n','')
             row[result_clazz_col].set_value(deps)
             return row
+    return None
 
 
 def read_row(sheet):
     for row in range(sheet.nrows()):
-        yield [sheet[row, col] for col in range(sheet.ncols())]
+        yield [sheet[row, column] for column in range(sheet.ncols())]
 
 
 def get_processing(name):
@@ -101,9 +103,9 @@ def run(filepath, processf):
         if new_row:
             # print(f"{'\t'.join([str(col.value) for col in new_row])}")
             synsetid = row[synsetid_col].value
-            id = row[nid_col].value
+            nid = row[nid_col].value
             clazz = row[clazz_col].value
-            print(f"{synsetid}\t{id}\t{clazz}\t{row[text_col].value}\t{new_row[result_clazz_col].value.replace('\n', '')}")
+            print(f"{synsetid}\t{nid}\t{clazz}\t{row[text_col].value}\t{new_row[result_clazz_col].value.replace('\n', '')}")
             count += 1
     p = Path(file_abspath)
     saved = f"{p.parent}/{p.stem}_{processf.__name__}{p.suffix}"
