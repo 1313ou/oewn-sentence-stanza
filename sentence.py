@@ -31,7 +31,7 @@ def find_dep_list(rels, head, dependencies):
 
 def __is_sentence(sentence):
     # _dump(sentence)
-    root = find_dep1(('root'), 0, sentence.dependencies)
+    root = find_dep1(['root'], 0, sentence.dependencies)
     if not root:
         return False
 
@@ -48,16 +48,16 @@ def __is_sentence(sentence):
             # let n v
             if root.lemma == 'let' and root.id == 1:
                 # let's|us|him|the man V
-                xcomp = find_dep1(('xcomp'), root.id, sentence.dependencies)
-                obj = find_dep1(('obj'), root.id, sentence.dependencies)
+                xcomp = find_dep1(['xcomp'], root.id, sentence.dependencies)
+                obj = find_dep1(['obj'], root.id, sentence.dependencies)
                 if xcomp and xcomp.upos == 'VERB' and obj and obj.upos in ('NOUN', 'PRON'):
                     return True
-                ccomp = find_dep1(('ccomp'), root.id, sentence.dependencies)
+                ccomp = find_dep1(['ccomp'], root.id, sentence.dependencies)
                 if ccomp:
                     return True
 
             # do v
-            aux = find_dep1(('aux'), root.id, sentence.dependencies)
+            aux = find_dep1(['aux'], root.id, sentence.dependencies)
             if aux and aux.lemma == 'do' and len(subjects) == 0:  # and aux.id == 1:
                 return True
 
@@ -69,7 +69,7 @@ def __is_sentence(sentence):
 
     # root with copula and subject
     elif root.upos in {"NOUN", "PRON", "ADJ", "ADV"}:
-        copulas = find_dep_list(("cop"), root.id, sentence.dependencies)
+        copulas = find_dep_list(["cop"], root.id, sentence.dependencies)
         if len(subjects) == 0 or len(copulas) == 0:
             return False
         return True
@@ -90,7 +90,7 @@ def _deps(doc, color=False):
     return prettyprint.dependency_tree(doc.sentences[0], color=color)
 
 
-def _cdeps(doc, color=False):
+def _cdeps(doc):
     return prettyprint.cdependency_tree(doc.sentences[0])
 
 
