@@ -107,7 +107,7 @@ def run(filepath, processf):
             clazz = row[clazz_col].value
             print(f"{synsetid}\t{nid}\t{clazz}\t{row[text_col].value}\t{new_row[result_clazz_col].value.replace('\n', '')}")
             count += 1
-    p = Path(file_abspath)
+    p = Path(str(file_abspath))
     saved = f"{p.parent}/{p.stem}_{processf.__name__}{p.suffix}"
     doc.saveas(saved)
     return count
