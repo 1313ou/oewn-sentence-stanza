@@ -5,7 +5,9 @@ from pathlib import Path
 
 import ezodf
 import ods_columns as col
-import sentence_stanza
+
+import load_stanza as model
+import sentence
 
 synsetid_col = col.synsetid_col
 nid_col = col.nid_col
@@ -45,7 +47,7 @@ def process(row):
     if not (tagged_sentence or tagged_phrase):
         raise ValueError(id)
     input_text = row[text_col].value
-    is_sentence, deps, cdeps = sentence_stanza.parse_sentence(input_text)
+    is_sentence, deps, cdeps = sentence.parse_sentence(input_text, model.nlp)
     diff = (tagged_sentence and not is_sentence) or (tagged_phrase and is_sentence)
     if diff:
         row[result_clazz_col].set_value('S!' if is_sentence else 'P!')
@@ -60,7 +62,7 @@ def process_sentence(row):
     clazz = row[clazz_col].value
     if clazz is not None and clazz in ('S', 'I'):
         input_text = row[text_col].value
-        is_sentence, deps = sentence_stanza.parse_sentence(input_text)
+        is_sentence, deps = sentence.parse_sentence(input_text, model.nlp)
         if not is_sentence:
             deps = str(deps)  # .replace('\n','')
             row[result_clazz_col].set_value(deps)
@@ -71,7 +73,7 @@ def process_not_sentence(row):
     clazz = row[clazz_col].value
     if clazz is not None and clazz in ('P', 'N', 'V', 'A', 'D'):
         input_text = row[text_col].value
-        is_sentence, deps = sentence_stanza.parse_sentence(input_text)
+        is_sentence, deps = sentence.parse_sentence(input_text, model.nlp)
         if is_sentence:
             deps = str(deps)  # .replace('\n','')
             row[result_clazz_col].set_value(deps)

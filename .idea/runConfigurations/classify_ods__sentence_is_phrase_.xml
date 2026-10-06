@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="read_ods (phrase is sentence)" type="PythonConfigurationType" factoryName="Python">
-    <module name="oewn_sentence_stanza" />
+  <configuration default="false" name="classify_ods (sentence is phrase)" type="PythonConfigurationType" factoryName="Python">
+    <module name="oewn-sentence-stanza" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -12,8 +12,10 @@
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
-    <option name="SCRIPT_NAME" value="$ProjectFileDir$/read_ods.py" />
-    <option name="PARAMETERS" value="--processing process_not_sentence oewn-2024.ods" />
+    <option name="DEBUG_JUST_MY_CODE" value="true" />
+    <option name="RUN_TOOL" value="" />
+    <option name="SCRIPT_NAME" value="$ProjectFileDir$/classify_stanza_ods.py" />
+    <option name="PARAMETERS" value="--processing process_sentence oewn-2024.ods" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
